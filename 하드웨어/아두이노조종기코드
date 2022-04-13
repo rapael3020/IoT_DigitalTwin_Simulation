@@ -1,0 +1,179 @@
+#include <SoftwareSerial.h>
+
+SoftwareSerial BTSerial(2,3);
+
+int joyX1;                    //조이스틱1 상하
+int joyY1;                    //조이스틱1 좌우
+int joyX2;                    //조이스틱2 상하
+int joyY2;                    //조이스틱2 좌우
+int button1 = 4;              //F 버튼
+int button2 = 5;              //ESC 버튼.
+String data;
+
+
+/*
+7-segment(FND)
+4 Digit 7-세그먼트(FND) 예제
+공통 캐소드 타입
+www.mcuboard.com
+*/
+
+// 0~9까지 숫자를 배열로 초기화
+byte num[10][7] =
+{ 
+ { 0,0,0,0,0,0,1 },    // 0
+ { 1,0,0,1,1,1,1 },    // 1
+ { 0,0,1,0,0,1,0 },    // 2
+ { 0,0,0,0,1,1,0 },    // 3
+ { 1,0,0,1,1,0,0 },    // 4
+ { 0,1,0,0,1,0,0 },    // 5
+ { 0,1,0,0,0,0,0 },    // 6
+ { 0,0,0,1,1,1,1 },    // 7
+ { 0,0,0,0,0,0,0 },    // 8
+ { 0,0,0,1,1,0,0 }     // 9
+};
+
+// 자리수,  제어 핀 아두이노와 초기화
+int digit_pin[4] = {12,2,3,4};
+int segment_pin[8] = {5,6,7,8,9,10,11};
+
+
+void setup()
+{
+  BTSerial.begin(9600); //시리얼 통신을 하기위한 통신속도설정
+  Serial.begin(9600);
+  pinMode(button1 , INPUT_PULLUP);
+  pinMode(button2 , INPUT_PULLUP);
+ for(int i=0;i<4;i++) // 자리수 1~4핀 출력모드로 세팅
+ {
+   pinMode(digit_pin[i],OUTPUT);
+ }
+ for(int i=0;i<8;i++) // 세그먼트 1~8핀 출력모드로 세팅
+ {
+   pinMode(segment_pin[i],OUTPUT);
+ }
+}
+
+
+void loop()
+{
+  joyX1 = analogRead(A1);
+  joyX2 = analogRead(A3);
+  joyY1 = analogRead(A2);
+  joyY2 = analogRead(A4);
+  
+  if(joyX1 > 900){
+    data = "a";
+    while(joyX1 > 900){
+      BTSerial.println(data);
+      Serial.println(data);
+      joyX1 = analogRead(A1);
+      delay(50);
+    }
+  } else if (joyX1 < 100){
+    data = "b";
+    while(joyX1 < 100){
+      BTSerial.println(data);
+      Serial.println(data);
+      joyX1 = analogRead(A1);
+      delay(50);
+    }
+  }
+ 
+  if(joyX2 > 900){
+    data = "c";
+    while(joyX2 > 900){
+      BTSerial.println(data);
+      joyX2 = analogRead(A3);
+      delay(50);
+    }
+  } else if (joyX2 < 100){
+    data = "d";
+    while(joyX2 < 100){
+      BTSerial.println(data);
+      joyX2 = analogRead(A3);
+      delay(50);
+    }
+  }
+
+  if(joyY1 > 900){
+    data = "e";
+    while(joyY1 > 900){
+      BTSerial.println(data);
+      joyY1 = analogRead(A2);
+      delay(50);
+    }
+  } else if (joyY1 < 100){
+    data = "f";
+    while(joyY1 < 100){
+      BTSerial.println(data);
+      joyY1 = analogRead(A2);
+      delay(50);
+    }
+  }
+
+  if(joyY2 > 900 || joyY2 < 100){
+    data = "j";
+    BTSerial.println(data);
+    Serial.println(data);
+    while(joyY2 > 800 || joyY2 < 200){
+      joyY2 = analogRead(A4);
+    }
+  }
+  
+
+  if(digitalRead(button1) == LOW){
+    data = "i";
+    BTSerial.println(data);
+  }
+
+  if(digitalRead(button2) == LOW){
+    data = "j";
+    BTSerial.println(data);
+  }
+
+     int num = BTSerial.read();
+   int a1 = num / 1000;
+   int b1 = (num / 100) % 10;
+   int c1 = (num / 10) % 10;
+   int d1 = (num / 1) % 10;           
+   
+   show_num(a1,1);
+   show_num(b1,2);
+   show_num(c1,3);
+   show_num(d1,4);
+}
+
+void show_num(int number, int digit) // 사용자 정의 함수 show_num 정의
+{
+ // 4자리 중 해당하는 자릿수의 선택 핀만 LOW로 설정
+ if(digit == 1){
+  digitalWrite(digit_pin[0],HIGH);
+  digitalWrite(digit_pin[1],LOW);
+  digitalWrite(digit_pin[2],LOW);
+  digitalWrite(digit_pin[3],LOW);
+ }else if(digit==2){
+  digitalWrite(digit_pin[1],HIGH);
+  digitalWrite(digit_pin[0],LOW);
+  digitalWrite(digit_pin[2],LOW);
+  digitalWrite(digit_pin[3],LOW);
+ }else if(digit==3){
+  digitalWrite(digit_pin[2],HIGH);
+  digitalWrite(digit_pin[0],LOW);
+  digitalWrite(digit_pin[1],LOW);
+  digitalWrite(digit_pin[3],LOW);
+ }else if(digit==4){
+  digitalWrite(digit_pin[3],HIGH);
+  digitalWrite(digit_pin[0],LOW);
+  digitalWrite(digit_pin[1],LOW);
+  digitalWrite(digit_pin[2],LOW);
+ }
+
+ // 세그먼트에서 숫자 출력
+ // a,b,c,d,e,f,g,dp 8개의 세그먼트를 배열에 맞춰서 on/off
+ for (int i=0; i < 7; i++)
+ {
+  digitalWrite(segment_pin[i], num[number][i]);
+ }
+ delay(5); // 잔상이 남아야 하므로 지연시간  
+}

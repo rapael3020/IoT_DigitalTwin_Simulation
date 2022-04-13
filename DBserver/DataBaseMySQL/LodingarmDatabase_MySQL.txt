@@ -1,0 +1,80 @@
+﻿-- DB최종
+
+-- ship_information Table Create SQL
+CREATE TABLE ship_information
+(
+    `t_shipid`        VARCHAR(45)    NOT NULL    COMMENT '모선번호', 
+    `t_date`          DATETIME       NULL        COMMENT '반출일자', 
+    `loadingarm_num`  VARCHAR(45)    NULL        COMMENT '로딩암고유번호', 
+    PRIMARY KEY (t_shipid)
+);
+
+ALTER TABLE ship_information COMMENT '모선정보';
+
+
+-- ship_information Table Create SQL
+CREATE TABLE Nomal_User
+(
+    `n_id`     VARCHAR(30)    NOT NULL    COMMENT 'ID', 
+    `n_name`   VARCHAR(30)    NULL        COMMENT '이름', 
+    `n_num`    INT            NULL        COMMENT '주민등록번호', 
+    `n_phone`  INT            NULL        COMMENT '연락처', 
+    `n_addr`   VARCHAR(45)    NULL        COMMENT '주소', 
+    `n_pw`     VARCHAR(30)    NULL        COMMENT '비밀번호', 
+    PRIMARY KEY (n_id)
+);
+
+ALTER TABLE Nomal_User COMMENT '일반사용자';
+
+
+-- ship_information Table Create SQL
+CREATE TABLE Port_information
+(
+    `p_id`            VARCHAR(45)    NOT NULL    COMMENT '항만고유번호', 
+    `p_name`          VARCHAR(30)    NULL        COMMENT '항만이름', 
+    `p_pw`            VARCHAR(45)    NULL        COMMENT '비밀번호', 
+    `p_area`          VARCHAR(30)    NULL        COMMENT '구역', 
+    `loadingarm_num`  VARCHAR(30)    NULL        COMMENT '로딩암고유번호', 
+    PRIMARY KEY (p_id)
+);
+
+ALTER TABLE Port_information COMMENT '항만정보';
+
+
+-- ship_information Table Create SQL
+CREATE TABLE Loadingarm_information
+(
+    `t_num`     VARCHAR(45)    NOT NULL    COMMENT '로딩암고유번호', 
+    `t_item`    VARCHAR(45)    NULL        COMMENT '로딩암운반품목', 
+    `user_id`   VARCHAR(30)    NULL        COMMENT '일반사용자ID', 
+    `port_num`  VARCHAR(45)    NULL        COMMENT '항만고유번호', 
+    PRIMARY KEY (t_num)
+);
+
+ALTER TABLE Loadingarm_information COMMENT '로딩암정보';
+
+ALTER TABLE Loadingarm_information
+    ADD CONSTRAINT FK_Loadingarm_information_user_id_Nomal_User_n_id FOREIGN KEY (user_id)
+        REFERENCES Nomal_User (n_id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+ALTER TABLE Loadingarm_information
+    ADD CONSTRAINT FK_Loadingarm_information_port_num_Port_information_p_id FOREIGN KEY (port_num)
+        REFERENCES Port_information (p_id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+
+-- ship_information Table Create SQL
+CREATE TABLE Simulation
+(
+    `s_x1`  VARCHAR(45)    NULL        COMMENT 'x관절1', 
+    `s_y1`  VARCHAR(45)    NULL        COMMENT 'y관절1', 
+    `s_z1`  VARCHAR(45)    NULL        COMMENT 'z관절1', 
+    `i_1`   INT            NOT NULL    AUTO_INCREMENT COMMENT 'Index', 
+    PRIMARY KEY (i_1)
+);
+
+ALTER TABLE Simulation COMMENT '시뮬레이션로딩암관절값';
+
+
+
+
+
